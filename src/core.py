@@ -2,6 +2,7 @@ import cv2 #import openCV
 import os #funzioni di libreria per accedere al sistema operativo
 import numpy as np #import numpy: funzioni matematiche, grafici..
 
+
 def faceDetection(img):
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY) #converte l'immagine a colore in scala di grigi
     classificatore=cv2.CascadeClassifier(r"/home/pi/repo/talia-rasp-pi/haar/haarcascade_frontalface_default.xml") #algoritmo classificatore(astrazione matematica -- immagini in matrici)
@@ -40,12 +41,12 @@ def creaDataset(directory):
 
 def addestramento(faces,facesID):
     face_recognizer=cv2.face.createLBPHFaceRecognizer()
-    face_recognizer.train(faces,np.array(facesID))
+    face_recognizer.train(faces,np.array(facesID)) #richiamo l'addestramento
     return face_recognizer
 
 def draw_rect(test_img,face):
     (x,y,w,h)=face
-    cv2.rectangle(test_img, (x, y), (x + w, y + h), (0, 0, 255), thickness=3)
+    cv2.rectangle(test_img, (x, y), (x + w, y + h), (0, 0, 255), thickness=3) #rettangolo intorno al viso: (x + w, y + h) è l'angolo in basso a destra del rettangolo. (0, 0, 255): colore rosso del rettangolo e lo spessore dei bordi è 3
 
 def put_name(test_img,text,x,y):
     cv2.putText(test_img,text,(x,y),cv2.QT_FONT_NORMAL,2,(0,0,255),3)
@@ -70,7 +71,7 @@ faceRecognizer = carica_addestramento()
 
 name = {1:"Talia", 2:"Andrea"}
 
-capture = cv2.VideoCapture(0) #cattura il video da webcam
+capture = cv2.VideoCapture(0) #cattura il video da webcam --> 0 telecamera attiva
 
 while True:
     ret, test_img=capture.read()
@@ -91,9 +92,12 @@ while True:
     resized = cv2.resize(test_img, (800, 800))
 
     cv2.imshow("face", resized)
-    if cv2.waitKey(10) == 27:
+    #if cv2.waitKey(10) == 27:
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
+    
+capture.release()
+cv2.destroyAllWindows()
 #################################  fine video capture  #############################################################
 
 
