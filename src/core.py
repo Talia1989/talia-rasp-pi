@@ -68,7 +68,7 @@ def carica_addestramento():
 init_addestramento()
 faceRecognizer = carica_addestramento()
 
-name = {0:"Elon", 1:"Talia", 2:"Andrea"}
+name = {1:"Talia", 2:"Andrea"}
 
 capture = cv2.VideoCapture(0) #cattura il video da webcam
 
@@ -85,8 +85,9 @@ while True:
         predictedName=name[label]
         draw_rect(test_img,face)
         if confidence>75:
+            put_name(test_img,"?",x,y)
             continue
-        put_name(test_img,predictedName,x,y)
+        else: put_name(test_img,predictedName,x,y)
     resized = cv2.resize(test_img, (800, 800))
 
     cv2.imshow("face", resized)
