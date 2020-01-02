@@ -1,10 +1,21 @@
 import cv2
 import numpy as np
-
+from picamera import PiCamera
+from picamera.array import PiRGBArray
+import time
 
 # init part
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier('haarcascade_righteye_2splits.xml')
+dimpx = 620
+dimpy = 480
+camera = PiCamera()
+camera.rotation = 180
+camera.resolution = (dimpx, dimpy)
+camera.framerate = 60
+camera.exposure_compensation = 25
+rawCapture = PiRGBArray(camera, size=(dimpx, dimpy))
+time.sleep(0.1)
+face_cascade = cv2.CascadeClassifier('/home/pi/Desktop/repo/talia-rasp-pi/haar/haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier('/home/pi/Desktop/repo/talia-rasp-pi/haar/haarcascade_righteye_2splits.xml')
 detector_params = cv2.SimpleBlobDetector_Params()
 detector_params.filterByArea = True
 detector_params.maxArea = 1500
@@ -40,13 +51,12 @@ def detect_eyes(img, cascade):
     for (x, y, w, h) in eyes:
         if y > height / 2:
             pass
-        eyecenter = x + w / 2  # get the eye center
-        if eyecenter < width * 0.5:
-            left_eye = img[y:y + h, x:x + w]
+#         eyecenter = x + w / 2  # get the eye center
+#         if eyecenter < width * 0.5:
+#             left_eye = img[y:y + h, x:x + w]
         else:
             right_eye = img[y:y + h, x:x + w]
     return left_eye, right_eye
-
 
 def cut_eyebrows(img):
     height, width = img.shape[:2]
@@ -72,25 +82,32 @@ def nothing(x):
 
 
 def main():
-    cap = cv2.VideoCapture(0)
+#     camera.capture(rawCapture, format="bgr")
+    
+    
     cv2.namedWindow('image')
     cv2.createTrackbar('threshold', 'image', 0, 255, nothing)
-    while True:
-        _, frame = cap.read()
+    for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+#         _, frame = cap.read()
+        frame = f.array
         face_frame = detect_faces(frame, face_cascade)
         if face_frame is not None:
             eyes = detect_eyes(face_frame, eye_cascade)
-            for eye in eyes:
-                if eye is not None:
-                    threshold = r = cv2.getTrackbarPos('threshold', 'image')
-                    print("threshold is {} ".format(threshold))
-                    eye = cut_eyebrows(eye)
-                    keypoints = blob_process(eye, threshold, detector)
-                    eye = cv2.drawKeypoints(eye, keypoints, eye, (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+            print(eyes)
+            if eyes is not None:
+                for eye in eyes:
+                    if eye is not None:
+                        threshold = r = cv2.getTrackbarPos('threshold', 'image')
+                        print("threshold is {} ".format(threshold))
+                        eye = cut_eyebrows(eye)
+                        keypoints = blob_process(eye, threshold, detector)
+                        eye = cv2.drawKeypoints(eye, keypoints, eye, (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         cv2.imshow('image', frame)
+        # clear the stream in preparation for the next frame
+        rawCapture.truncate(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    cap.release()
+#     cap.release()
     cv2.destroyAllWindows()
 
 
