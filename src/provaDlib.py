@@ -75,6 +75,13 @@ def get_blinking_ratio(eyeType):
     ratioS = hor_line_lenght/ver_line_lenght
     return ratioS
 
+def get_threshold(eye):
+    eye = cv2.medianBlur(eye, 3)
+    _, the_threshold = cv2.threshold(eye, threshold_value, 255, cv2.THRESH_BINARY) #######pupilla nera, occhio bianco
+    if the_threshold is not None:
+        cv2.imshow("THRESHOLD", cv2.resize(the_threshold, (dimpx, dimpy), fx=5, fy=5))
+    return the_threshold
+
 def get_gaze_ratio(eyeType):
     nordEst ,nordOvest, sudEst, sudOvest, est, ovest, occhio = (0,)*7
     if eyeType == "L":
@@ -118,7 +125,8 @@ def get_gaze_ratio(eyeType):
     
     eye = the_eye[min_y: max_y, min_x: max_x]
     
-    _, threshold_eye = cv2.threshold(eye, threshold_value, 255, cv2.THRESH_BINARY) #######pupilla nera, occhio bianco
+    #estrazione threshold
+    threshold_eye = get_threshold(eye)
     gaze_ratio = -1
     if threshold_eye is not None:
         h_t, w_t = threshold_eye.shape
@@ -138,7 +146,7 @@ def get_gaze_ratio(eyeType):
 #         cv2.putText(frame, str(left_side_white), (50,100), font, 2, (0,0,255),3)
 #         cv2.putText(frame, str(right_side_white), (400,100), font, 2, (0,0,255),3)
 #         cv2.imshow("EYE", cv2.resize(eye, (dimpx, dimpy), fx=5, fy=5))
-        cv2.imshow("THRESHOLD", cv2.resize(threshold_eye, (dimpx, dimpy), fx=5, fy=5))
+#         cv2.imshow("THRESHOLD", cv2.resize(threshold_eye, (dimpx, dimpy), fx=5, fy=5))
 #         cv2.imshow("the_eye", the_eye)
 #         cv2.imshow("left", cv2.resize(left_side_threshold, (dimpx, dimpy), fx=5, fy=5))
 #         cv2.imshow("right", cv2.resize(right_side_threshold, (dimpx, dimpy), fx=5, fy=5))
