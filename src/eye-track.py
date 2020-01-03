@@ -5,12 +5,12 @@ from picamera.array import PiRGBArray
 import time
 
 # init part
-dimpx = 620
-dimpy = 480
+dimpx = 624
+dimpy = 420
 camera = PiCamera()
-camera.rotation = 180
+# camera.rotation = 180
 camera.resolution = (dimpx, dimpy)
-camera.framerate = 60
+camera.framerate = 32
 camera.exposure_compensation = 25
 rawCapture = PiRGBArray(camera, size=(dimpx, dimpy))
 time.sleep(0.1)
