@@ -16,7 +16,7 @@ camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(dimpx, dimpy))
 time.sleep(0.1)
 
-font = cv2.FONT_HERSHEY_DUPLEX
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("/home/pi/Desktop/repo/talia-rasp-pi/landmarks/shape_predictor_68_face_landmarks.dat")
@@ -87,15 +87,38 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         #cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
 
         landmarks = predictor(gray, face)
+        
+        #Detect blinking
         ratioBlink = get_blinking_ratio("L", landmarks)
+        ratioD = get_blinking_ratio("R", landmarks) ########################################################
         
         maxRatio = r = cv2.getTrackbarPos(ratioName, windowName)
         print("valore maxRatio: {}, valore ratio blink: {}".format(maxRatio, ratioBlink))
         
-        if ratioBlink > maxRatio:
-            cv2.putText(frame, "BLINK", (50, 150), font, 7, (255, 0 ,0))
+        if ratioBlink > maxRatio and ratioD > maxRatio: #####################################################################################
+            cv2.putText(frame, "BLINK", (50, 150), font, 5, (0, 255 ,0)) ######################cambio numero ---> 5 invece di 7 (grandezza font), cambio colore font.
+        
+        #Gaze detection
+        left_eye_region = np.array([(landmarks.part(36).x, landmarks.part(36).y),
+                                    (landmarks.part(37).x, landmarks.part(37).y),
+                                    (landmarks.part(38).x, landmarks.part(38).y),
+                                    (landmarks.part(39).x, landmarks.part(39).y),
+                                    (landmarks.part(40).x, landmarks.part(40).y),
+                                    (landmarks.part(41).x, landmarks.part(41).y)], np.int32)
+#         cv2.polylines(frame, [left_eye_region], True, (0, 0, 255), 2) ################################## contorno occhio colore rosso
 
-        for n in range(36, 42): #range di punti per disegnare il viso --> 36, 42 occhio destro
+        #maschera eye
+        min_x = np.min(left_eye_region[:,0])
+        max_x = np.max(left_eye_region[:,0])
+        min_y = np.min(left_eye_region[:,1])
+        max_y = np.max(left_eye_region[:,1])
+        
+        eye = frame[min_y: max_y, min_x: max_x]
+        
+#         cv2.imshow("EYE", cv2.resize(eye, (600,400), fx=0.5, fy=3))
+        cv2.imshow("EYE", cv2.resize(eye, None, fx=5, fy=5)) 
+
+        for n in range(36, 48): #range di punti per disegnare il viso --> 36, 42 occhio destro --> 36, 48 entrambi occhi ######################################
             x = landmarks.part(n).x
             y = landmarks.part(n).y
             cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)
