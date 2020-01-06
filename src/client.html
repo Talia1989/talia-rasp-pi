@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Tesi </title>
+  <script>
+	  console.log("<3")
+	  
+	var eventSource = new EventSource("http://localhost:5000/stream");
+	eventSource.onmessage = (event)=>{
+	  console.log(event)
+	  }
+  </script>
+</head>
+<body>
+	
+</body>
+</html>
