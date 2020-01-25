@@ -2,12 +2,17 @@
 <html>
 <head>
   <title>Spotify Web Playback SDK Quick Start Tutorial</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
   <h1 style="color: violet;">EYE TRAKING JUKEBOX </h1>
-  <h3>Open your console log: <code>View > Developer > JavaScript Console</code></h3>
-  <button onclick="togglePlay()"> Blink </button>
-  <button onclick="next()"> Next </button>
+  <h6>Open your console log: <code>View > Developer > JavaScript Console</code></h6>
+  <div>
+    <button type="button" class="btn btn-primary" onclick="previous()"> Previous </button>
+    <button type="button" class="btn btn-primary" onclick="togglePlay()"> Blink </button>
+    <button type="button" class="btn btn-primary" onclick="next()"> Next </button>
+  </div>
+  
 
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script>
@@ -68,6 +73,8 @@
 
       window.spotifyController.play = () => { player.togglePlay() };
       window.spotifyController.next = () => { player.nextTrack() };
+      window.spotifyController.previous = () => { player.previousTrack() };
+      
 
       // Connect to the player!
       player.connect();
@@ -84,6 +91,11 @@
     function next(){
       console.log("ClickNext")
       window.spotifyController.next();
+    }
+    
+    function previous(){
+      console.log("ClickPrevious")
+      window.spotifyController.previous();
     }
   
   </script>
