@@ -168,16 +168,15 @@ def get_gaze_ratio(eyeType, landmarks, frame, gray, threshold_value):
 @app.route('/stream')
 def stream():
     def eventStream():
-#         while True:
-#             # wait for source data to be available, then push it
-#             yield 'data: {}\n\n'.format(get_message())
         for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
             print("--------------------------------------------------------------------------------------------------------")
             frame = f.array
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             faces = detector(gray)
+            
             for face in faces:
+                messageResponse = ""
                 x1 = face.left()
                 y1 = face.top()
                 x2 = face.right()
@@ -195,28 +194,31 @@ def stream():
                 gaze_ratio_max = gmax = cv2.getTrackbarPos(gazeMaxName, windowName)
                 
                 if ratioS > maxRatio and ratioD > maxRatio: 
-                    cv2.putText(frame, "BLINK", (50, 150), font, 5, (0, 255 ,0)) 
+                    cv2.putText(frame, "BLINK", (50, 150), font, 5, (0, 255 ,0))
+                    messageResponse = "BLINK"
+                else:
+                    messageResponses = ""
                 
                 #Gaze detection
-                left_eye_gaze = get_gaze_ratio("L", landmarks, frame, gray, threshold_value)
-                right_eye_gaze = get_gaze_ratio("R", landmarks, frame, gray, threshold_value)
-                print("valore gaze sinistro:{}, valore gaze destro:{}".format(left_eye_gaze, right_eye_gaze))
-                
-                gaze_ratio_tot = int(((left_eye_gaze + right_eye_gaze)/2)*1000)
-                
-                messageResponse = ""
-                if gaze_ratio_tot <= gaze_ratio_min:
-                    cv2.putText(frame, "RIGHT", (50, 100), font, 2, (0, 0, 255),3)
-                    messageResponse = "RIGHT"
-                elif gaze_ratio_min < gaze_ratio_tot < gaze_ratio_max:
-                    cv2.putText(frame, "CENTER", (50, 100), font, 2, (0, 0, 255),3)
-                    messageResponse = "CENTER"
-                else:
-                    cv2.putText(frame, "LEFT", (50, 100), font, 2, (0, 0, 255),3)
-                    messageResponse = "LEFT"
-                
-                
-                cv2.putText(frame, str(gaze_ratio_tot), (50,300), font, 2, (0,0,255),3)
+                if messageResponse is "":
+                    left_eye_gaze = get_gaze_ratio("L", landmarks, frame, gray, threshold_value)
+                    right_eye_gaze = get_gaze_ratio("R", landmarks, frame, gray, threshold_value)
+                    print("valore gaze sinistro:{}, valore gaze destro:{}".format(left_eye_gaze, right_eye_gaze))
+                    
+                    gaze_ratio_tot = int(((left_eye_gaze + right_eye_gaze)/2)*1000)
+                    
+                    if gaze_ratio_tot <= gaze_ratio_min:
+                        cv2.putText(frame, "RIGHT", (50, 100), font, 2, (0, 0, 255),3)
+                        messageResponse = "RIGHT"
+                    elif gaze_ratio_min < gaze_ratio_tot < gaze_ratio_max:
+                        cv2.putText(frame, "CENTER", (50, 100), font, 2, (0, 0, 255),3)
+                        messageResponse = "CENTER"
+                    else:
+                        cv2.putText(frame, "LEFT", (50, 100), font, 2, (0, 0, 255),3)
+                        messageResponse = "LEFT"
+                    
+                    
+                    cv2.putText(frame, str(gaze_ratio_tot), (50,300), font, 2, (0,0,255),3)
                 
                 yield 'data: {}\n\n'.format(messageResponse)
                 

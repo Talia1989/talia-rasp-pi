@@ -1,17 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title> Tesi </title>
-  <script>
-	  console.log("<3")
-	  
-	var eventSource = new EventSource("http://localhost:5000/stream");
-	eventSource.onmessage = (event)=>{
-	  console.log(event)
-	  }
-  </script>
+  <title>Spotify Web Playback SDK Quick Start Tutorial</title>
 </head>
 <body>
-	
+  <h1 style="color: violet;">EYE TRAKING JUKEBOX </h1>
+  <h3>Open your console log: <code>View > Developer > JavaScript Console</code></h3>
+  <button onclick="togglePlay()"> Blink </button>
+  <button onclick="next()"> Next </button>
+
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script>
+    window.spotifyController = {};
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const token = 'BQDlt9EBrN5NPQTOfhTIT9OCf2Kwq7WRPSWG-RHPycHI6KNxA-ibRrKlcijek0yL6uTTd1LeiFWY4fQkxhWpWIboSWyzmNREsApmmKnb3Yfk46kwAKx6Ae7KIbQhul21GKzwidmg8hq8DMp1aP5-GXxdYQv8wzl0WjlKu6HrUZma2pEmvACitbA';
+      const theName = 'eye music';
+      const player = new Spotify.Player({
+        name: theName,
+        getOAuthToken: cb => { cb(token); }
+      });
+      
+      // Error handling
+      player.addListener('initialization_error', ({ message }) => { console.error(message); });
+      player.addListener('authentication_error', ({ message }) => { console.error(message); });
+      player.addListener('account_error', ({ message }) => { console.error(message); });
+      player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+      // Playback status updates
+      player.addListener('player_state_changed', state => { console.log(state); });
+
+      // Called when connected to the player created beforehand successfully
+      player.addListener('ready', ({ device_id }) => {
+        console.log('Ready with Device ID', device_id);
+
+        const play = ({
+          spotify_uri,
+          playerInstance: {
+            _options: {
+              getOAuthToken,
+              id
+            }
+          }
+        }) => {
+          getOAuthToken(access_token => {
+            fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
+              method: 'PUT',
+              body: JSON.stringify({ uris: [spotify_uri] }),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access_token}`
+              },
+            });
+          });
+        };
+
+        play({
+          playerInstance: player,
+          spotify_uri: 'spotify:track:7xGfFoTpQ2E7fRF5lN10tr',
+        });
+      });
+
+      // Not Ready
+      player.addListener('not_ready', ({ device_id }) => {
+        console.log('Device ID has gone offline', device_id);
+      });
+      
+
+      window.spotifyController.play = () => { player.togglePlay() };
+      window.spotifyController.next = () => { player.nextTrack() };
+
+      // Connect to the player!
+      player.connect();
+        
+    };
+    
+  </script>
+  <script>
+    function togglePlay(){
+      console.log("ClickToggle")
+      window.spotifyController.play();
+    }
+    
+    function next(){
+      console.log("ClickNext")
+      window.spotifyController.next();
+    }
+  
+  </script>
+  
 </body>
 </html>
