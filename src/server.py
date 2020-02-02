@@ -54,8 +54,8 @@ gazeMaxName = "gazeMax"
 cv2.namedWindow(windowName)
 cv2.createTrackbar(ratioName, windowName, 0, 10, nothing)
 cv2.createTrackbar(thresholdName, windowName, 0, 255, nothing)
-cv2.createTrackbar(gazeMinName, windowName, 0, 2000, nothing)
-cv2.createTrackbar(gazeMaxName, windowName, 0, 2000, nothing)
+cv2.createTrackbar(gazeMinName, windowName, 0, 5000, nothing)
+cv2.createTrackbar(gazeMaxName, windowName, 0, 5000, nothing)
 
 #init dimensionamento punti
 def midpoint(p1,p2):

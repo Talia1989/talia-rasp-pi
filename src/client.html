@@ -11,6 +11,7 @@
     <button type="button" class="btn btn-primary" onclick="previous()"> Previous </button>
     <button type="button" class="btn btn-primary" onclick="togglePlay()"> Blink </button>
     <button type="button" class="btn btn-primary" onclick="next()"> Next </button>
+    <button type="button" class="btn btn-danger" onclick="serverConnect()"> Connect </button>
   </div>
   
 
@@ -96,6 +97,27 @@
     function previous(){
       console.log("ClickPrevious")
       window.spotifyController.previous();
+    }
+    
+    function serverConnect(){
+      window.serverFlask = {}
+      const eventSource = new EventSource("http://127.0.0.1:5000/stream");
+      eventSource.addEventListener("message", (e) => {
+	console.log(e.data);
+	switch(e.data){
+	  case "LEFT": 
+	    window.spotifyController.previous();
+	    break;
+	  case "RIGHT":
+	    window.spotifyController.next();
+	    break;
+	  case "BLINK":
+	    window.spotifyController.play();
+	    break;
+	  default: break;
+	}
+      });
+      window.serverFlask.stream = eventSource;
     }
   
   </script>
