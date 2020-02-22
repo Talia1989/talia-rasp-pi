@@ -52,10 +52,10 @@ thresholdName = "threshold"
 gazeMinName = "gazeMin"
 gazeMaxName = "gazeMax"
 cv2.namedWindow(windowName)
-cv2.createTrackbar(ratioName, windowName, 0, 10, nothing)
-cv2.createTrackbar(thresholdName, windowName, 0, 255, nothing)
-cv2.createTrackbar(gazeMinName, windowName, 0, 5000, nothing)
-cv2.createTrackbar(gazeMaxName, windowName, 0, 5000, nothing)
+cv2.createTrackbar(ratioName, windowName, 4, 10, nothing)
+cv2.createTrackbar(thresholdName, windowName, 43, 255, nothing)
+cv2.createTrackbar(gazeMinName, windowName, 604, 5000, nothing)
+cv2.createTrackbar(gazeMaxName, windowName, 1024, 5000, nothing)
 
 #init dimensionamento punti
 def midpoint(p1,p2):
@@ -165,7 +165,7 @@ def get_gaze_ratio(eyeType, landmarks, frame, gray, threshold_value):
             
             
 
-@app.route('/stream')
+@app.route('/stream', methods=['GET', 'OPTIONS'])
 def stream():
     def eventStream():
         for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -229,6 +229,8 @@ def stream():
             cv2.imshow(windowName, frame)
 
         cv2.destroyAllWindows()
+    # response = Response(eventStream(), mimetype="text/event-stream")
+    # response.headers['Access-Control-Allow-Origin'] = '*'
     return Response(eventStream(), mimetype="text/event-stream")
 
 if __name__ == "__main__":

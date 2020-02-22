@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Spotify Web Playback SDK Quick Start Tutorial</title>
+  <title>App Client</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
@@ -19,7 +19,7 @@
   <script>
     window.spotifyController = {};
     window.onSpotifyWebPlaybackSDKReady = () => {
-      const token = 'BQDlt9EBrN5NPQTOfhTIT9OCf2Kwq7WRPSWG-RHPycHI6KNxA-ibRrKlcijek0yL6uTTd1LeiFWY4fQkxhWpWIboSWyzmNREsApmmKnb3Yfk46kwAKx6Ae7KIbQhul21GKzwidmg8hq8DMp1aP5-GXxdYQv8wzl0WjlKu6HrUZma2pEmvACitbA';
+      const token = 'BQDrntZotyY7MJY7rKjooLJ3wdYZZ0VsYTuDGu1MvhndTdEXW9XP_-DL49F611DHjJPLgrocOHOvXL7PYb8aiEMGcBJlTLfhU3zv7syAzE-1l-zPjF_s6AwD3IVIBI-s7HeD7ZN7rZp3pp0uGjEPOXsPK8oMmSXs76OlLFsbN9yYoZcsm5GDXr0';
       const theName = 'eye music';
       const player = new Spotify.Player({
         name: theName,
@@ -40,7 +40,7 @@
         console.log('Ready with Device ID', device_id);
 
         const play = ({
-          spotify_uri,
+	  ctx_uri,
           playerInstance: {
             _options: {
               getOAuthToken,
@@ -51,19 +51,21 @@
           getOAuthToken(access_token => {
             fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
               method: 'PUT',
-              body: JSON.stringify({ uris: [spotify_uri] }),
+              body: JSON.stringify({ context_uri: ctx_uri}),
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${access_token}`
               },
             });
-          });
+          }); 
         };
 
         play({
           playerInstance: player,
-          spotify_uri: 'spotify:track:7xGfFoTpQ2E7fRF5lN10tr',
+	  ctx_uri: 'spotify:playlist:5F9aBeWuaKgtwqRkt5g9TB',
         });
+	
+	
       });
 
       // Not Ready
