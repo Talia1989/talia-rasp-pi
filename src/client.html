@@ -74,15 +74,40 @@
       });
       
 
-      window.spotifyController.play = () => { player.togglePlay() };
-      window.spotifyController.next = () => { player.nextTrack() };
-      window.spotifyController.previous = () => { player.previousTrack() };
+      window.spotifyController.play = debounce(() => { player.togglePlay() }, 3000, true);
+      window.spotifyController.next = debounce(() => { player.nextTrack() }, 3000, true);
+      window.spotifyController.previous = debounce(() => { player.previousTrack() }, 3000, true);
       
 
       // Connect to the player!
       player.connect();
         
     };
+    
+    
+    //funzione per ritardare esecuzione pulsanti 
+    function debounce(func, wait, immediate) {
+      var timeout;
+
+      return function executedFunction() {
+	var context = this;
+	var args = arguments;
+		
+	var later = function() {
+	  timeout = null;
+	  if (!immediate) func.apply(context, args);
+	};
+
+	var callNow = immediate && !timeout;
+	    
+	clearTimeout(timeout);
+
+	timeout = setTimeout(later, wait);
+	    
+	if (callNow) func.apply(context, args);
+      };
+    };
+  
     
   </script>
   <script>
@@ -122,7 +147,12 @@
       window.serverFlask.stream = eventSource;
     }
   
+  
   </script>
+  
+  
+  
   
 </body>
 </html>
+
