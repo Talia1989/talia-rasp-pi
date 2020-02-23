@@ -49,8 +49,8 @@ def nothing(x):
 windowName = "eye-tracker"
 ratioName = "ratio"
 thresholdName = "threshold"
-gazeMinName = "gazeMin"
-gazeMaxName = "gazeMax"
+gazeMinName = "gazeMin (right)"
+gazeMaxName = "gazeMax (left)"
 cv2.namedWindow(windowName)
 cv2.createTrackbar(ratioName, windowName, 4, 10, nothing)
 cv2.createTrackbar(thresholdName, windowName, 43, 255, nothing)
@@ -201,12 +201,13 @@ def stream():
                 
                 #Gaze detection
                 if messageResponse is "":
-                    left_eye_gaze = get_gaze_ratio("L", landmarks, frame, gray, threshold_value)
+                    #left_eye_gaze = get_gaze_ratio("L", landmarks, frame, gray, threshold_value)
                     right_eye_gaze = get_gaze_ratio("R", landmarks, frame, gray, threshold_value)
-                    print("valore gaze sinistro:{}, valore gaze destro:{}".format(left_eye_gaze, right_eye_gaze))
+                    #print("valore gaze sinistro:{}, valore gaze destro:{}".format(left_eye_gaze, right_eye_gaze))
                     
-                    gaze_ratio_tot = int(((left_eye_gaze + right_eye_gaze)/2)*1000)
+                    #gaze_ratio_tot = int(((left_eye_gaze + right_eye_gaze)/2)*1000)
                     
+                    gaze_ratio_tot = int(((right_eye_gaze)/2)*1000)
                     if gaze_ratio_tot <= gaze_ratio_min:
                         cv2.putText(frame, "RIGHT", (50, 100), font, 2, (0, 0, 255),3)
                         messageResponse = "RIGHT"

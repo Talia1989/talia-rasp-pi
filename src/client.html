@@ -19,7 +19,7 @@
   <script>
     window.spotifyController = {};
     window.onSpotifyWebPlaybackSDKReady = () => {
-      const token = 'BQDrntZotyY7MJY7rKjooLJ3wdYZZ0VsYTuDGu1MvhndTdEXW9XP_-DL49F611DHjJPLgrocOHOvXL7PYb8aiEMGcBJlTLfhU3zv7syAzE-1l-zPjF_s6AwD3IVIBI-s7HeD7ZN7rZp3pp0uGjEPOXsPK8oMmSXs76OlLFsbN9yYoZcsm5GDXr0';
+      const token = 'BQBnx3qQESzFV_uxTvQp_6GIybmNjb7dPzW27WgUqdfvoonFhshBZj8OKBYENyUQOQno3B7JN9mb7ao0KyJixU-kElw6FclgHRAeP2pDsxkOcTwA8m0QpP_SbqRn1uBKWYA_Av2oeycNBB_OcUQ1Nuqqrj7kdNGQLawPmPxkj4cmfgoGzJqlIwU';
       const theName = 'eye music';
       const player = new Spotify.Player({
         name: theName,
@@ -74,10 +74,14 @@
       });
       
 
-      window.spotifyController.play = debounce(() => { player.togglePlay() }, 3000, true);
-      window.spotifyController.next = debounce(() => { player.nextTrack() }, 3000, true);
-      window.spotifyController.previous = debounce(() => { player.previousTrack() }, 3000, true);
+      window.spotifyController.play = debounce(() => { player.togglePlay() }, 1500, true);
+      window.spotifyController.next = debounce(() => { player.nextTrack() }, 1500, true);
+      window.spotifyController.previous = debounce(() => { player.previousTrack() }, 1500, true);
       
+      window.spotifyController.status = {
+	"status" : "CENTER",
+	"counter" : 0
+      }
 
       // Connect to the player!
       player.connect();
@@ -109,6 +113,7 @@
     };
   
     
+    
   </script>
   <script>
     function togglePlay(){
@@ -127,11 +132,9 @@
     }
     
     function serverConnect(){
-      window.serverFlask = {}
-      const eventSource = new EventSource("http://127.0.0.1:5000/stream");
-      eventSource.addEventListener("message", (e) => {
-	console.log(e.data);
-	switch(e.data){
+      
+      const execute = (message) =>{
+	switch(message){
 	  case "LEFT": 
 	    window.spotifyController.previous();
 	    break;
@@ -143,6 +146,36 @@
 	    break;
 	  default: break;
 	}
+      }
+      
+      const changeStatus = (message) =>{
+	let status = window.spotifyController.status;
+	if (message === status.status){
+	  status.counter +=1;
+	}else{
+	  status.status = message;
+	  status.counter = 0;
+	}
+	if(status.counter === 3){
+	  status.counter = 0;
+	  status.status = 'CENTER'
+	  execute(message);
+	}
+      };
+      
+      window.serverFlask = {}
+      const eventSource = new EventSource("http://127.0.0.1:5000/stream");
+      eventSource.addEventListener("message", (e) => {
+	console.log(e.data);
+	if(e.data!=="CENTER") {
+	  changeStatus(e.data);
+	}else{
+	  window.spotifyController.status = {
+	    "status" : "CENTER",
+	    "counter" : 0
+	  }
+	}
+	
       });
       window.serverFlask.stream = eventSource;
     }
